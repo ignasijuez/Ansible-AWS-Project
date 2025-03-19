@@ -16,5 +16,5 @@ This guide details the step-by-step process to set up and deploy the Ansible-AWS
   unzip awscliv2.zip
   sudo ./aws/install
   aws --version```
-  ```
+  
 ## 0️⃣ Base Setup
