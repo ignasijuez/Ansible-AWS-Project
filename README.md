@@ -17,7 +17,9 @@ This project automates the deployment of a web application on AWS using Ansible.
 - **Security**:
   - Credentials encrypted with Ansible Vault
   - Minimal permissions via security groups
-
+    
+- IMAGE
+  
 ## Prerequisites
 
 - **AWS Free Tier Account**: An active AWS account.
