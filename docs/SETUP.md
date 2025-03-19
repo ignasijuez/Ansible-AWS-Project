@@ -1,7 +1,6 @@
 
 ### `docs/SETUP.md` (Detailed Documentation)
 
-```markdown
 # Setup and Deployment Guide
 
 This guide details the step-by-step process to set up and deploy the Ansible-AWS project.
@@ -18,3 +17,4 @@ This guide details the step-by-step process to set up and deploy the Ansible-AWS
   sudo ./aws/install
   aws --version```
   ```
+## 0️⃣ Base Setup
