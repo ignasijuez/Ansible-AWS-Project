@@ -26,18 +26,6 @@ This project automates the deployment of a web application on AWS using Ansible.
 - **Ansible**: Installed on your local machine or WSL.
 - **VSCode**: Configured with the "Remote - WSL" extension for development.
 
----
+## Setup and Usage
 
-## Setup and Deployment Steps
-
-### 0️⃣ Base Setup
-
-- **Create an AWS Free Tier Account**: Sign up at [aws.amazon.com](https://aws.amazon.com).
-- **Install WSL on Windows**:
-  - Enable WSL and install a Linux distribution (e.g., Ubuntu) via the Microsoft Store.
-- **Install AWS CLI on WSL**:
-  ```bash
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  unzip awscliv2.zip
-  sudo ./aws/install
-  aws --version
+See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions.
