@@ -31,3 +31,17 @@ This project automates the deployment of a web application on AWS using Ansible.
 ## Setup and Usage
 
 See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions.
+
+
+## Learnings
+
+- Dynamic inventory management with meta: refresh_inventory
+- Security group rule handling
+- Secure credential storage
+
+
+## Future Improvements
+
+- HTTPS support
+- Enhanced database automation
+- CloudWatch monitoring
