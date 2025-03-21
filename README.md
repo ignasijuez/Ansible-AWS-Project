@@ -35,9 +35,13 @@ See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions.
 
 ## Learnings
 
-- Dynamic inventory management with meta: refresh_inventory
-- Security group rule handling
-- Secure credential storage
+- Dynamic inventory management with Ansible
+- Managing and automating security group rules and network security
+- Secure credential storage and handling sensitive information (e.g., Ansible Vault)
+- Load balancing configuration and automation (e.g., ELB, ALB in AWS)
+- Automating infrastructure provisioning and resource management
+- Handling high availability and fault tolerance in cloud environments
+- Integration of Auto Scaling with infrastructure deployments
 
 
 ## Future Improvements
