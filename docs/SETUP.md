@@ -316,6 +316,12 @@ You'll configure Ansible to send email notifications upon successful deployment,
    ansible-playbook -i aws_ec2.yml playbook2.yml --ask-vault-pass
    ```
 
+## Changes to be made to work
+- **Modify the notify role**: Use your emails.
+- **Modify vault**: Update the vault secrets and then encrypt it.
+- **Modify ansible.cfg**: Update the path of the private key file.
+
+
 ## Key Notes
 
 - **Inventory Refresh**: Use `meta: refresh_inventory` with `gather_facts: yes`.
