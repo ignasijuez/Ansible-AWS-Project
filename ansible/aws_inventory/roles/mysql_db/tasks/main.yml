@@ -1,0 +1,86 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for mysql_db
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL Database
+  apt:
+    name: 
+      - default-mysql-server
+      - default-mysql-client
+    state: present
+    update_cache: yes
+
+- name: Start MySQL Service & Check if MySQL service is running
+  service:
+    name: mariadb   # Use 'mariadb' if MariaDB is installed
+    state: started
+    enabled: yes
+  register: mariadb_status
+
+- name: Show MariaDB status
+  debug:
+    msg: "MariaDB service is running"
+  when: mariadb_status.state == "started"
+
+- name: Modify bind-address in MySQL config to allow remote connections
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = 0.0.0.0'
+  #notify:
+  #  - restart
+  #changed_when: true
+
+- name: Restart MySQL
+  service:
+    name: mariadb
+    state: restarted
+    enabled: yes
+
+- name: Create a database user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: "{{ db_name }}.*:ALL"
+    host: '%'
+    state: present
+    update_password: on_create
+
+- name: Create a database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: Create employees table
+  mysql_query:
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    login_host: "{{ db_host }}"
+    query: |
+      CREATE TABLE IF NOT EXISTS employees (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE
+      )
+
+- name: Insert employee records
+  mysql_query:
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    login_host: "{{ db_host }}"
+    query: |
+      INSERT IGNORE INTO employees (name) 
+      VALUES ('John Doe'), ('Jane Smith'), ('Alice Johnson')
+
+- name: Flush privileges
+  mysql_user:
+    name: "{{ db_user }}"
+    state: present
+    host: '%'
+    priv: "{{ db_name }}.*:ALL"
+    update_password: always
