@@ -1,0 +1,71 @@
+---
+
+- name: Create Security Group in AWS with Custom Rules
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - setup_sg
+
+- name: Execute create_ec2.yml playbook
+  import_playbook: create_ec2.yml
+
+- name: Wait for EC2 instances
+  hosts: localhost
+  vars_files:
+    - vault.yml
+  roles:
+    - role: wait_ec2
+      vars:
+        ec2_tag_name:
+          - "db-server"
+          - "web-server"
+
+- name: Refresh inventory to include new instances
+  hosts: localhost
+  tasks:
+    - name: Refresh inventory
+      meta: refresh_inventory
+
+- name: Deploy a MySQL database
+  hosts: tag__db_server
+  become: yes
+  vars_files:
+    - vault.yml
+  roles:
+    - python
+    - mysql_db
+
+- name: Wait for web EC2 instances
+  hosts: localhost
+  vars_files:
+    - vault.yml
+  roles:
+    - role: wait_ec2
+      vars:
+        ec2_tag_name: "web-server"
+
+- name: Deploy a Flask web application
+  hosts: tag__web_server
+  become: yes
+  vars_files:
+    - vault.yml
+  roles:
+    - python
+    - flask_web
+    #- ssl_certificate
+
+- name: Execute setup_clb.yml playbook
+  hosts: localhost
+  vars_files:
+    - vault.yml
+  roles: 
+    - setup_clb
+
+- name: Execute notify.yml playbook
+  hosts: localhost
+  vars_files:
+    - vault.yml
+  roles: 
+    - setup_notify
+
+    

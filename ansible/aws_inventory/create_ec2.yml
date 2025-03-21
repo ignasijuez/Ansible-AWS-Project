@@ -1,0 +1,29 @@
+---
+- name: Launch AWS EC2 instances
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Launch DB Server
+      amazon.aws.ec2_instance:
+        name: "db-server"
+        key_name: my-key                    # Your key pair from ec2 (see dashboard and create one)
+        instance_type: t3.micro
+        security_group: ansible-sg          # Your security group
+        image_id: ami-0598df2e797a16aea     # Replace with your region's AMI (see in EC2 -> AMIs)
+        region: eu-south-2                  # Your region
+        count: 1
+        tags:
+          Name: db-server
+
+    - name: Launch Web Servers
+      amazon.aws.ec2_instance:
+        name: "web-server"
+        key_name: my-key                    # Your key pair from ec2 (see dashboard and create one)
+        instance_type: t3.micro
+        security_group: ansible-sg          # Your security group
+        image_id: ami-0598df2e797a16aea     # Replace with your region's AMI (see in EC2 -> AMIs)
+        region: eu-south-2                  # Your region
+        count: 2
+        tags:
+          Name: web-server
+

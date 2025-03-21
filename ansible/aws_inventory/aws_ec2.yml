@@ -1,0 +1,14 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-south-2
+aws_access_key_id: <your-access-key>
+aws_secret_access_key: <your-secret-key>
+filters:
+  instance-state-name: running
+keyed_groups:
+  - key: tags.Name  # Group by Name tag
+    prefix: tag-
+hostnames:
+  - dns-name
+compose:
+  ansible_user: admin
