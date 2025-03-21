@@ -35,7 +35,7 @@
 
 - name: Download Flask app script
   get_url:
-    url: "https://raw.githubusercontent.com/ignasijuez/Ansible_Project01/master/app.py"
+    url: "https://raw.githubusercontent.com/ignasijuez/Ansible-AWS-Project/master/app.py"
     dest: /opt/flask_app/app.py
     mode: '0666'
 
