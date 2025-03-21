@@ -21,7 +21,7 @@
     port: 587
     username: "{{ smtp_user }}"
     password: "{{ smtp_pass }}"
-    to: "ignasiscott@gmail.com"
+    to: "dst email"
     subject: "Deployment Successful 🚀"
     body: |
       Hello,
@@ -36,5 +36,5 @@
       Regards,
       DevOps Team
     subtype: plain
-    from: "Ignasi <ignasiscott@gmail.com>"
+    from: "name <youremail@gmail.com>"
   delegate_to: localhost
