@@ -1,8 +1,0 @@
-#SPDX-License-Identifier: MIT-0
----
-# handlers file for mysql_db
-
-- name: restart
-  service:
-    name: mariadb
-    state: restarted
