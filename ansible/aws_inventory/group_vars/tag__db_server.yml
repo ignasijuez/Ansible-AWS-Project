@@ -1,0 +1,1 @@
+db_host: "{{ hostvars[groups['tag__db_server'][0]].ansible_default_ipv4.address }}"
