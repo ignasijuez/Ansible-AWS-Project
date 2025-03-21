@@ -1,0 +1,40 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for setup_notify
+
+- name: Obtener información del Classic Load Balancer
+  amazon.aws.elb_classic_lb_info:
+    region: "eu-south-2"
+  register: elb_info
+
+- name: Mostrar información del Load Balancer para depuración
+  debug:
+    var: elb_info
+
+- name: Guardar DNS del Load Balancer en una variable
+  set_fact:
+    clb_dns: "{{ elb_info.elbs[0].dns_name }}"
+
+- name: Send Email Notification
+  community.general.mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "{{ smtp_user }}"
+    password: "{{ smtp_pass }}"
+    to: "ignasiscott@gmail.com"
+    subject: "Deployment Successful 🚀"
+    body: |
+      Hello,
+
+      The deployment has been completed successfully.
+
+      Server Details:
+      - IP Load Balancer DNS: {{ clb_dns }}
+      - Open Ports: 80, 443
+      - Credentials: Check your password manager
+
+      Regards,
+      DevOps Team
+    subtype: plain
+    from: "Ignasi <ignasiscott@gmail.com>"
+  delegate_to: localhost

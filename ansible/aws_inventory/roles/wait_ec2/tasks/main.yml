@@ -1,0 +1,80 @@
+- name: Gather info about running instances for all tags
+  amazon.aws.ec2_instance_info:
+    filters:
+      "tag:Name": "{{ item }}"
+      "instance-state-name": "running"
+  register: ec2_info_list
+  loop: "{{ ec2_tag_name if ec2_tag_name is iterable and ec2_tag_name is not string else [ec2_tag_name] }}"
+
+# Show the information collected from the EC2 instances.
+- name: Debug EC2 Info List
+  debug:
+    var: ec2_info_list
+
+# Extract the instance IDs from all the tags.
+- name: Extract instance IDs from all tag groups
+  set_fact:
+    instance_ids_dict: "{{ instance_ids_dict | default({}) | combine({item.item: item.instances | map(attribute='instance_id') | list}) }}"
+  loop: "{{ ec2_info_list.results }}"
+  when: item.instances | length > 0
+
+# Display the instance IDs grouped by tag.
+- name: Debug instance IDs grouped by tag
+  debug:
+    msg: "{{ instance_ids_dict }}"
+
+# Check the status of instances for db-server.
+- name: Check instance status via AWS CLI with retry (for db-server)
+  command: >
+    aws ec2 describe-instance-status 
+    --instance-ids {{ instance_ids_dict['db-server'] | join(' ') }} 
+    --query "InstanceStatuses[*].{InstanceId:InstanceId,InstanceStatus:InstanceStatus.Status,SystemStatus:SystemStatus.Status}" 
+    --output json
+  register: status_result_db
+  until: >
+    status_result_db.stdout | from_json | length == instance_ids_dict['db-server'] | length and
+    (status_result_db.stdout | from_json | selectattr('InstanceStatus', 'equalto', 'ok') | list | length) == (instance_ids_dict['db-server'] | length) and
+    (status_result_db.stdout | from_json | selectattr('SystemStatus', 'equalto', 'ok') | list | length) == (instance_ids_dict['db-server'] | length)
+  retries: 10
+  delay: 30
+  when: instance_ids_dict['db-server'] | length > 0
+
+# Check the status of instances for web-server.
+- name: Check instance status via AWS CLI with retry (for web-server)
+  command: >
+    aws ec2 describe-instance-status 
+    --instance-ids {{ instance_ids_dict['web-server'] | join(' ') }} 
+    --query "InstanceStatuses[*].{InstanceId:InstanceId,InstanceStatus:InstanceStatus.Status,SystemStatus:SystemStatus.Status}" 
+    --output json
+  register: status_result_web
+  until: >
+    status_result_web.stdout | from_json | length == instance_ids_dict['web-server'] | length and
+    (status_result_web.stdout | from_json | selectattr('InstanceStatus', 'equalto', 'ok') | list | length) == (instance_ids_dict['web-server'] | length) and
+    (status_result_web.stdout | from_json | selectattr('SystemStatus', 'equalto', 'ok') | list | length) == (instance_ids_dict['web-server'] | length)
+  retries: 10
+  delay: 30
+  when: instance_ids_dict['web-server'] | length > 0
+
+# Parse the result of the db-server instance status with all checks passed.
+- name: Parse status result for db-server instances with all checks passed
+  set_fact:
+    ready_db_instance_ids: "{{ (status_result_db.stdout | from_json) | selectattr('InstanceStatus', 'equalto', 'ok') | selectattr('SystemStatus', 'equalto', 'ok') | map(attribute='InstanceId') | list }}"
+  when: status_result_db.stdout is defined
+
+# Parse the result of the web-server instance status with all checks passed.
+- name: Parse status result for web-server instances with all checks passed
+  set_fact:
+    ready_web_instance_ids: "{{ (status_result_web.stdout | from_json) | selectattr('InstanceStatus', 'equalto', 'ok') | selectattr('SystemStatus', 'equalto', 'ok') | map(attribute='InstanceId') | list }}"
+  when: status_result_web.stdout is defined
+
+# Show the db-server instance IDs with all checks passed.
+- name: Debug ready db-server instance IDs
+  debug:
+    msg: "Instance {{ item }} (db-server) has 2/2 checks passed"
+  loop: "{{ ready_db_instance_ids }}"
+
+# Show the web-server instance IDs with all checks passed.
+- name: Debug ready web-server instance IDs
+  debug:
+    msg: "Instance {{ item }} (web-server) has 2/2 checks passed"
+  loop: "{{ ready_web_instance_ids }}"

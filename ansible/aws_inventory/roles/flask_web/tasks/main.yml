@@ -1,0 +1,94 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for flask_web
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL Database
+  apt:
+    name: 
+      - default-mysql-server
+      - default-mysql-client
+    state: present
+    update_cache: yes
+
+- name: Create a Python Virtual Environment
+  file:
+    path: /opt/flask_app
+    state: directory
+    mode: '0755'
+
+- name: Set up virtual environment
+  command: python3 -m venv /opt/flask_app/venv
+  args:
+    creates: /opt/flask_app/venv/bin/activate
+
+- name: Install Flask dependencies in virtual environment
+  pip:
+    name:
+      - flask
+      - flask-mysql
+    virtualenv: /opt/flask_app/venv
+
+
+- name: Download Flask app script
+  get_url:
+    url: "https://raw.githubusercontent.com/ignasijuez/Ansible_Project01/master/app.py"
+    dest: /opt/flask_app/app.py
+    mode: '0666'
+
+- name: Update app.py with the dynamic DB server IP
+  replace:
+    path: /opt/flask_app/app.py
+    regexp: "app.config\\['MYSQL_DATABASE_HOST'\\] = os.getenv\\('MYSQL_DATABASE_HOST', '[^']*'\\)"
+    replace: "app.config['MYSQL_DATABASE_HOST'] = os.getenv('MYSQL_DATABASE_HOST', '{{ db_host }}')"
+  become: yes
+
+
+#- name: Start Web Server
+#  shell: >
+#    source /opt/flask_app/venv/bin/activate &&
+#    FLASK_APP=/opt/flask_app/app.py nohup flask run --host=0.0.0.0 --port=5000 > /var/log/flask.log 2>&1 &
+#  args:
+#    executable: /bin/bash
+
+- name: Set correct permissions for Flask app
+  file:
+    path: /opt/flask_app
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Create Flask systemd service
+  copy:
+    dest: /etc/systemd/system/flask_app.service
+    content: |
+      [Unit]
+      Description=Flask Web Application
+      After=network.target
+      
+      [Service]
+      User=www-data
+      Group=www-data
+      WorkingDirectory=/opt/flask_app
+      Environment="PATH=/opt/flask_app/venv/bin"
+      ExecStart=/opt/flask_app/venv/bin/python /opt/flask_app/app.py
+      
+
+      
+      [Install]
+      WantedBy=multi-user.target
+  #ExecStart=/opt/flask_app/venv/bin/flask run --host=0.0.0.0 --port=5000
+  #ExecStart=/opt/flask_app/venv/bin/python -m flask run --host=0.0.0.0 --port=5000
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start Flask application
+  systemd:
+    name: flask_app
+    state: restarted
+    enabled: yes
