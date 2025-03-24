@@ -19,6 +19,7 @@ This project automates the deployment of a web application on AWS using Ansible.
   - Minimal permissions via security groups
 
 Overview:
+
 <img src="docs/images/project-structure.png" alt="Project Architecture" width="500">
   
 ## Prerequisites
