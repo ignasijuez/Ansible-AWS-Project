@@ -17,8 +17,6 @@ This project automates the deployment of a web application on AWS using Ansible.
 - **Security**:
   - Credentials encrypted with Ansible Vault
   - Minimal permissions via security groups
-    
-![Project Architecture](docs/images/project-structure.png)
 
 <p align="center">
   <img src="docs/images/project-structure.png" alt="Project Architecture" width="500">
