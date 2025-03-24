@@ -31,6 +31,13 @@ This project automates the deployment of a web application on AWS using Ansible.
 ## Setup and Usage
 
 See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions.
+Remember to modify the default-values with your own ones:
+  - ansible.cfg
+  - aws_ec2.yml
+  - create_ec2.yml
+  - vault.yml
+  - flask_web/tasks/main.yml (use your own repo to retrieve the flask app)
+  - setup_clb/tasks/main.yml (your subnet and sg IDs)
 
 
 ## Learnings
