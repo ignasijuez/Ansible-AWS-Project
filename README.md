@@ -20,7 +20,7 @@ This project automates the deployment of a web application on AWS using Ansible.
 
 Overview:
 
-<img src="docs/images/project-structure.png" alt="Project Architecture" width="500">
+<img src="docs/images/project-overview.png" alt="Project Architecture" width="500">
   
 ## Prerequisites
 
